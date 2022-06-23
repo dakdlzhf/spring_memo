@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.model.MemoMapper">
+
+	<select id="list" parameterType="Map"
+		resultType="com.study.model.MemoDTO">
+		SELECT * FROM memo
+		<where>
+			<choose>
+				<when test="col=='title'">
+					title like concat('%',#{word},'%')
+				</when>
+				<when test="col=='content'">
+					content like concat('%',#{word},'%')
+				</when>
+				<when test="col=='title_content'">
+					title like concat('%', #{word} ,'%')
+					or
+					content like
+					concat('%', #{word} ,'%')
+				</when>
+			</choose>
+		</where>
+		ORDER BY grpno desc,ansnum ASC limit #{sno},#{eno}
+	</select>
+
+	<select id="total" parameterType="Map" resultType="int">
+		SELECT count(*) from memo
+		<where>
+			<choose>
+				<when test="col=='title'">
+					title like concat('%',#{word},'%')
+				</when>
+				<when test="col=='content'">
+					content like concat('%',#{word},'%')
+				</when>
+				<when test="col=='title_content'">
+					title like concat('%', #{word} ,'%')
+					or
+					content like
+					concat('%', #{word} ,'%')
+				</when>
+			</choose>
+		</where>
+	</select>
+
+	<update id="upviewcnt" parameterType="int">
+		update memo
+		set viewcnt =
+		viewcnt + 1
+		where memono = #{memono}
+	</update>
+
+	<select id="read" parameterType="int"
+		resultType="com.study.model.MemoDTO">
+		SELECT
+		wname,title,content,passwd,viewcnt,wdate,grpno,indent,ansnum
+		FROM memo
+		WHERE memono = #{memono}
+	</select>
+
+	<update id="update" parameterType="com.study.model.MemoDTO">
+		UPDATE memo
+		set wname =
+		#{wname} ,
+		title = #{title},
+		content = #{content}
+		WHERE memono =
+		#{memono}
+	</update>
+
+	<select id="passCheck" parameterType="Map" resultType="int">
+		SELECT
+		count(memono) FROM memo
+		WHERE memono = #{memono}
+		and passwd = #{passwd}
+	</select>
+
+	<delete id="delete" parameterType="int">
+		delete FROM memo
+		WHERE memono =
+		#{memono}
+	</delete>
+
+	<insert id="create" parameterType="com.study.model.MemoDTO">
+		insert into memo (wname,
+		title, content, wdate, grpno, passwd)
+		values
+		(#{wname},#{title},#{content},sysdate(),(select ifnull(max(grpno),0)
+		+
+		1 from memo m), #{passwd})
+	</insert>
+
+	<insert id="createReply" parameterType="com.study.model.MemoDTO">
+		INSERT INTO
+		memo(wname,title,content,passwd,wdate,grpno,indent,ansnum)
+		values(#{wname},#{title},#{content},#{passwd},sysdate(),#{grpno},#{indent}+1,#{ansnum}+1 ) 
+	</insert>
+
+	<select id="readReply" parameterType="int"
+		resultType="com.study.model.MemoDTO">
+		SELECT memono,title,grpno,indent,ansnum
+		FROM memo
+		WHERE memono = #{memono}
+	</select>
+
+	<update id="upAnsnum" parameterType="Map">
+		update memo 
+		set 
+		ansnum = ansnum + 1 
+		where grpno = #{grpno} and ansnum > #{ansnum}
+	</update>
+
+
+
+
+</mapper>
