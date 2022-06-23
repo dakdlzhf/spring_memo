@@ -19,7 +19,7 @@ import com.study.utility.Utility;
 
 @Controller
 public class MemoController {
-
+   //주석
   @Autowired
   private MemoServiceImpl dao;
 
